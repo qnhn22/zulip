@@ -26,23 +26,67 @@
         <li role="separator" class="popover-menu-separator"></li>
         <li role="none" class="popover-menu-list-item">
             {{#if (or members.length subgroups.length)}}
-                <ul class="popover-menu-list popover-group-menu-member-list" data-simplebar data-simplebar-tab-index="-1" data-simplebar-auto-hide="false">
-                    {{#each subgroups}}
-                        <li class="popover-group-menu-member">
-                            <i class="popover-group-member-icon popover-menu-icon zulip-icon zulip-icon-triple-users" aria-hidden="true"></i>
-                            <span class="popover-group-menu-member-name">{{name}}</span>
-                        </li>
+                <ul class="popover-menu-list popover-group-menu-member-list" data-simplebar
+                  data-simplebar-tab-index="-1" data-simplebar-auto-hide="false">
+                    {{#each displayed_members_and_subgroups}}
+                        {{#if user_id}}
+                            <li class="popover-group-menu-member">
+                                {{#if is_bot}}
+                                    <i class="popover-group-member-icon zulip-icon zulip-icon-bot"
+                                      aria-hidden="true"></i>
+                                {{else}}
+                                    <span
+                                      class="popover-group-member-icon user-circle zulip-icon zulip-icon-{{user_circle_class}} {{user_circle_class}} popover-group-menu-user-presence hidden-for-spectators"
+                                      data-tippy-content="{{user_last_seen_time_status}}"></span>
+                                {{/if}}
+                                <span class="popover-group-menu-member-name">{{full_name}}</span>
+                            </li>
+                        {{else}}
+                            <li class="popover-group-menu-member">
+                                <i class="popover-group-member-icon popover-menu-icon zulip-icon zulip-icon-triple-users"
+                                  aria-hidden="true"></i>
+                                <span class="popover-group-menu-member-name">{{name}}</span>
+                            </li>
+                        {{/if}}
                     {{/each}}
-                    {{#each members}}
-                        <li class="popover-group-menu-member">
-                            {{#if is_bot}}
-                                <i class="popover-group-member-icon zulip-icon zulip-icon-bot" aria-hidden="true"></i>
+                    {{#unless display_all_subgroups_and_members}}
+                        {{#if is_system_group}}
+                            {{#if has_bots}}
+                                <li class="popover-group-menu-member">
+                                    <span class="popover-group-menu-member-name">
+                                        {{t "View all"}}
+                                        <span>
+                                            <a href="#organization/users">
+                                                {{t "users"}}
+                                            </a>
+                                        </span>
+                                        {{t "and"}}
+                                        <span>
+                                            <a href="#organization/bot-list-admin">
+                                                {{t "bots"}}
+                                            </a>
+                                        </span>
+                                    </span>
+                                </li>
                             {{else}}
-                                <span class="popover-group-member-icon user-circle zulip-icon zulip-icon-{{user_circle_class}} {{user_circle_class}} popover-group-menu-user-presence hidden-for-spectators" data-tippy-content="{{user_last_seen_time_status}}"></span>
+                                <li class="popover-group-menu-member">
+                                    <span class="popover-group-menu-member-name">
+                                        <a href="#organization/users" role="menuitem">
+                                            {{t "View all users"}}
+                                        </a>
+                                    </span>
+                                </li>
                             {{/if}}
-                            <span class="popover-group-menu-member-name">{{full_name}}</span>
-                        </li>
-                    {{/each}}
+                        {{else}}
+                            <li class="popover-group-menu-member">
+                                <span class="popover-group-menu-member-name">
+                                    <a href="{{group_members_url}}" role="menuitem">
+                                        {{t "View all members"}}
+                                    </a>
+                                </span>
+                            </li>
+                        {{/if}}
+                    {{/unless}}
                 </ul>
             {{else}}
                 <span class="popover-group-menu-placeholder"><i>{{t 'This group has no members.'}}</i></span>
@@ -51,7 +95,8 @@
         {{#unless (or is_guest is_system_group deactivated)}}
             <li role="separator" class="popover-menu-separator hidden-for-spectators"></li>
             <li role="none" class="link-item popover-menu-list-item hidden-for-spectators">
-                <a href="{{group_edit_url}}" role="menuitem" class="navigate-link-on-enter popover-menu-link" tabindex="0">
+                <a href="{{group_edit_url}}" role="menuitem" class="navigate-link-on-enter popover-menu-link"
+                  tabindex="0">
                     <i class="popover-menu-icon zulip-icon zulip-icon-user-cog" aria-hidden="true"></i>
                     <span class="popover-menu-label">{{t "Group settings" }}</span>
                 </a>

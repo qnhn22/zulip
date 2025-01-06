@@ -98,16 +98,28 @@ export function toggle_user_group_info_popover(
                         .get_direct_subgroups_of_group(group)
                         .sort(user_group_components.sort_group_member_name),
                 );
+                const members = sort_group_members(fetch_group_members([...group.members]));
+                const all_individual_members = [...user_groups.get_recursive_group_members(group)];
+                const has_bots =
+                    group.is_system_group &&
+                    all_individual_members.some((member_id) => {
+                        const member = people.get_user_by_id_assert_valid(member_id);
+                        return people.is_active_user_for_popover(member.user_id) && member.is_bot;
+                    });
                 const args = {
                     group_name: user_groups.get_display_group_name(group.name),
                     group_description: group.description,
-                    members: sort_group_members(fetch_group_members([...group.members])),
+                    members,
                     subgroups,
                     group_edit_url: hash_util.group_edit_url(group, "general"),
                     is_guest: current_user.is_guest,
                     is_system_group: group.is_system_group,
                     deactivated: group.deactivated,
-                    members_count: user_groups.get_recursive_group_members(group).size,
+                    members_count: all_individual_members.length,
+                    group_members_url: hash_util.group_edit_url(group, "members"),
+                    displayed_members_and_subgroups: [...subgroups, ...members].slice(0, 30),
+                    display_all_subgroups_and_members: subgroups.length + members.length <= 30,
+                    has_bots,
                 };
                 instance.setContent(ui_util.parse_html(render_user_group_info_popover(args)));
             },
